@@ -1,0 +1,7 @@
+.gitattributes eol=lf
+.gitignore eol=lf
+*.unity eol=lf
+*.meta eol=lf
+*.prefab eol=lf
+*.asset text eol=lf
+
