@@ -12,11 +12,11 @@ namespace EliminationServer {
         }
 
         public static readonly GameManager Instance = new GameManager();
-        
+
         private readonly List<Room> _rooms = new(8);
 
         private readonly Dictionary<Client, PlayerState> _players = new();
-        
+
         private GameManager() { }
 
         public void TearDown() {
@@ -74,42 +74,45 @@ namespace EliminationServer {
             client.Dispose();
         }
 
+        /// <summary>
+        /// 查找另一个正在等待的玩家，如果有，则配对开始游戏。
+        /// </summary>
+        /// <param name="client">主动查找别的玩家的 Client 对象。</param>
+        /// <returns>true 表示找到另一个玩家，否则返回 false</returns>
+        private bool FindOtherWaitingPlayerAndStartGame(Client client) {
+            foreach (var kv in _players) {
+                if (kv.Key == client) {
+                    continue; // 跳过自己
+                }
+                if (kv.Value != PlayerState.WAITING) {
+                    continue;
+                }
+                Client otherPlayer = kv.Key;
+                _players.Remove(client);
+                _players.Remove(otherPlayer);
+                CreateRoomAndStartGame(client, otherPlayer);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 当收到一个 Client 发来 GamePrepare 请求时被调用
+        /// </summary>
+        /// <param name="client">发来请求的 Client</param>
+        /// <param name="gamePrepare">发来的 GamePrepare 请求包</param>
         public void OnGamePrepare(Client client, GamePrepare gamePrepare) {
             var newState = gamePrepare.Ready ? PlayerState.WAITING : PlayerState.NOT_READY;
-            if (_players.TryGetValue(client, out var state)) {
-                // Start game now when request is battle against AI.
-                if (newState == PlayerState.WAITING && gamePrepare.BattleAI) {
+            _players[client] = newState;
+
+            if (newState == PlayerState.WAITING) {
+                if (gamePrepare.BattleAI) {
                     _players.Remove(client);
                     CreateRoomAndStartGame(client, null);
-                    return;
-                }
-                // Update state and continue waiting for other human player.
-                if (state != newState) {
-                    _players[client] = newState;
-                }
-                return;
-            }
-
-            // Just put the player into container.
-            if (newState != PlayerState.WAITING) {
-                _players.Add(client, newState);
-                return;
-            }
-
-            // Player request battle against other human player.
-            // Find a human player to start game.
-            foreach (var kv in _players) {
-                if (kv.Value == PlayerState.WAITING) {
-                    Client player = kv.Key;
-                    _players.Remove(player);
-                    CreateRoomAndStartGame(player, client);
-                    return;
+                } else {
+                    FindOtherWaitingPlayerAndStartGame(client);
                 }
             }
-
-            // There isn't any other player is waiting.
-            // Put this plyaer into container for waiting;
-            _players.Add(client, newState);
         }
 
         public void OnGamePieceClick(Client client, GamePieceClick pieceClick) {

@@ -86,7 +86,7 @@ namespace EliminationServer {
         /// </summary>
         /// <returns>
         /// 一个 Cmd 对象，表示客户端发来的“Command/Request”包。或者返回 null，
-        /// 表示客户端发来的数据还不够完整，暂时无法得到一个完整的 Cmd。        /// 
+        /// 表示客户端发来的数据还不够完整，暂时无法得到一个完整的 Cmd。        ///
         /// </returns>
         /// <exception cref="ObjectDisposedException">本 Client 已销毁。</exception>
         /// <exception cref="SystemException">客户端发来的数据包是非法的，或者断线了等……</exception>
@@ -248,21 +248,21 @@ namespace EliminationServer {
         /// 数据包解析器。
         /// </summary>
         private class PacketParser {
-            /* 
+            /*
             An entire packet:
             +---------------------------+-------------------------------------+------//----------------+
             |   Command Type (4 Bytes)  |   Following JSON Length (4 Bytes)   |   Variable size JSON   |
-            +---------------------------+-------------------------------------+------//----------------+     
+            +---------------------------+-------------------------------------+------//----------------+
             */
 
             /// <summary>
-            /// An entire packet where the first 4 bytes (sizeof uint) represent the command type. 
+            /// An entire packet where the first 4 bytes (sizeof uint) represent the command type.
             /// (In network byte order).
             /// </summary>
             private const int SIZE_OF_CMD_TYPE_FIELD = sizeof(uint);
 
             /// <summary>
-            /// The next 4 bytes (sizeof uint) in the packet represent the length of the following JSON data. 
+            /// The next 4 bytes (sizeof uint) in the packet represent the length of the following JSON data.
             /// (In network byte order).
             /// </summary>
             private const int SIZE_OF_JSON_LEN_FIELD = sizeof(uint);
