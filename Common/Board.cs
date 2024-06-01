@@ -57,7 +57,7 @@ namespace Elimination {
                 for (int x = 0; x < Width; ++x) {
                     // We increase the value because 0 represents an empty cell.
                     _pieces[x, y] = ((_random.Next(pieceCategoryCount) + baseValue) % PIECE_CATEGORY_COUNT) + 1;
-                }
+                } 
             }
         }
 
